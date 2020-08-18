@@ -1,8 +1,9 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -13,45 +14,32 @@ import java.util.logging.Logger;
 public class GenerateMarkSheet {
 
     private static final Logger logger = Logger.getLogger(GenerateMarkSheet.class.getName());
+    private final File outputFolder, inputFileLocation;
 
-    private File createDirectory(String fileName) {
-        File inputFolder = new File(fileName);
-        if (!inputFolder.exists()) {
-            boolean mkdir = inputFolder.mkdir();
-            if (!mkdir) {
-                logger.info("Can't make directory!");
-            }
+    public GenerateMarkSheet() {
+        outputFolder = new File("Generated Mark Sheet");
+
+        if (outputFolder.exists()) {
+            logger.info("Folder for output: " + outputFolder.getPath());
         } else {
-            logger.info("Folder already created!");
-        }
-        return inputFolder;
-    }
-
-    public File inputMarks(List<String> studentInfo) {
-        File inputFolder = createDirectory("Input Marks");
-
-        try {
-            File inputMarksFile = new File(inputFolder.getPath() + "/marks.txt");
-            inputMarksFile.createNewFile();
-
-            PrintWriter printWriter = new PrintWriter(inputMarksFile);
-            studentInfo.forEach(printWriter::println);
-            printWriter.close();
-            return inputMarksFile;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new File("");
+            boolean outputFolderStatus = outputFolder.mkdir();
+            if (outputFolderStatus) {
+                logger.info("Output folder for result is created. Path: " + outputFolder.getPath());
+            }
         }
 
+        //File file = new File("/home/saimon/workspace/saimon-project/Different_Java_Techniques/src/generateMarkSheet/marks.txt");
+        //File file = new File("src/generateMarkSheet/marks.txt");
+        inputFileLocation = new File("Input marks/marks.txt");
+        logger.info("Input file location: " + inputFileLocation.getPath());
     }
 
-    public void precessAndGenerateMarkSheet(File inputFileDir) {
+    public void precessAndGenerateMarkSheet() {
         String[] subjects = new String[10];
         boolean firstRow = true;
 
         try {
-            Scanner myReader = new Scanner(inputFileDir);
+            Scanner myReader = new Scanner(inputFileLocation);
             while (myReader.hasNextLine()) {
                 if (firstRow) {
                     firstRow = false;
@@ -61,18 +49,19 @@ public class GenerateMarkSheet {
                 }
                 String data = myReader.nextLine();
                 String[] studentData = data.split(",");
+                logger.info(studentData[1] + "'s data: " + Arrays.toString(studentData));
 
                 double banglaGp   = getGp(studentData[2]);
                 double englishGp  = getGp(studentData[3]);
                 double mathGp     = getGp(studentData[4]);
                 double religionGp = getGp(studentData[5]);
 
-                File inputFolder = createDirectory("Output");
-                String outputFile = inputFolder.getPath() + "/" + studentData[0] + "-" + studentData[1] + ".txt";
+                String outputFile = outputFolder.getPath() + "/" + studentData[0] + "-" + studentData[1] + ".txt";
+                logger.info("Results file path: " + outputFile);
 
                 try {
                     PrintWriter outputStream = new PrintWriter(outputFile);
-                    outputStream.format("%nName: %s Student Role: %s %n %n", studentData[1], studentData[0]);
+                    outputStream.format("%nName: %s. Student Roll: %s %n %n", studentData[1], studentData[0]);
                     outputStream.println("----------------------------------------------");
                     outputStream.format("%-8s | %-8s | %-8s | %-8s | %n", "Subject", "Marks", "Grade Point", "Grade");
                     outputStream.println("----------------------------------------------");
@@ -88,6 +77,8 @@ public class GenerateMarkSheet {
                     outputStream.format("%-9s  %-8s | %-11.2f | %-8s | %n", "", "GPA", gpa, getGrade(gpa));
                     outputStream.println("----------------------------------------------");
 
+                    logger.info("Mark Sheet is generated for " + studentData[1] + ". Roll - " + studentData[0]);
+
                     outputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -95,6 +86,7 @@ public class GenerateMarkSheet {
 
             }
         } catch (IOException e) {
+            logger.log(Level.SEVERE, "Input marks file not found.");
             e.printStackTrace();
         }
     }
