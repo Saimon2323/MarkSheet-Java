@@ -1,0 +1,3 @@
+ID,Name,Bangla,English,Math,Religion
+C61,Abid,60,65,70,75
+C62,Miad,65,70,75,80
