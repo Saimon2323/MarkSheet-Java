@@ -72,7 +72,7 @@ public class GenerateMarkSheet {
 
                 try {
                     PrintWriter outputStream = new PrintWriter(outputFile);
-                    outputStream.format("%nName: %s Student Role: %s %n %n", studentData[1], studentData[0]);
+                    outputStream.format("%nName: %s. Student Roll: %s %n %n", studentData[1], studentData[0]);
                     outputStream.println("----------------------------------------------");
                     outputStream.format("%-8s | %-8s | %-8s | %-8s | %n", "Subject", "Marks", "Grade Point", "Grade");
                     outputStream.println("----------------------------------------------");
