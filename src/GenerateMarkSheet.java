@@ -3,11 +3,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * @Author Muhammad Saimon
- * @since Aug 8/16/20 10:48 AM
+ * @since 8/16/20 10:48 AM
  */
 
 public class GenerateMarkSheet {
@@ -15,16 +16,16 @@ public class GenerateMarkSheet {
     private static final Logger logger = Logger.getLogger(GenerateMarkSheet.class.getName());
 
     private File createDirectory(String fileName) {
-        File inputFolder = new File(fileName);
-        if (!inputFolder.exists()) {
-            boolean mkdir = inputFolder.mkdir();
+        File folder = new File(fileName);
+        if (!folder.exists()) {
+            boolean mkdir = folder.mkdir();
             if (!mkdir) {
-                logger.info("Can't make directory!");
+                logger.info("Can't make directory! : " + folder);
             }
         } else {
-            logger.info("Folder already created!");
+            logger.info(folder + " Folder already created!");
         }
-        return inputFolder;
+        return folder;
     }
 
     public File inputMarks(List<String> studentInfo) {
@@ -32,8 +33,10 @@ public class GenerateMarkSheet {
 
         try {
             File inputMarksFile = new File(inputFolder.getPath() + "/marks.txt");
-            inputMarksFile.createNewFile();
-
+            boolean isCreated = inputMarksFile.createNewFile();
+            if (isCreated) {
+                logger.info("Input file is created : " + inputFolder.getAbsolutePath());
+            }
             PrintWriter printWriter = new PrintWriter(inputMarksFile);
             studentInfo.forEach(printWriter::println);
             printWriter.close();
@@ -62,13 +65,14 @@ public class GenerateMarkSheet {
                 String data = myReader.nextLine();
                 String[] studentData = data.split(",");
 
-                double banglaGp   = getGp(studentData[2]);
-                double englishGp  = getGp(studentData[3]);
-                double mathGp     = getGp(studentData[4]);
+                double banglaGp = getGp(studentData[2]);
+                double englishGp = getGp(studentData[3]);
+                double mathGp = getGp(studentData[4]);
                 double religionGp = getGp(studentData[5]);
 
                 File inputFolder = createDirectory("Output");
                 String outputFile = inputFolder.getPath() + "/" + studentData[0] + "-" + studentData[1] + ".txt";
+                logger.info("Output file : " + outputFile);
 
                 try {
                     PrintWriter outputStream = new PrintWriter(outputFile);
@@ -87,9 +91,10 @@ public class GenerateMarkSheet {
                     double gpa = getGpa(banglaGp, englishGp, mathGp, religionGp);
                     outputStream.format("%-9s  %-8s | %-11.2f | %-8s | %n", "", "GPA", gpa, getGrade(gpa));
                     outputStream.println("----------------------------------------------");
-
+                    logger.info("Mark sheet has been generated for " + studentData[1]);
                     outputStream.close();
                 } catch (IOException e) {
+                    logger.log(Level.SEVERE, "Failed to generate Mark Sheet for " + studentData[1]);
                     e.printStackTrace();
                 }
 
@@ -103,8 +108,7 @@ public class GenerateMarkSheet {
         int number = Integer.parseInt(num);
         if (number < 33) {
             return 0;
-        }
-        else if (number < 40) {
+        } else if (number < 40) {
             return 1;
         } else if (number < 50) {
             return 2;
@@ -127,8 +131,7 @@ public class GenerateMarkSheet {
 
         if (gp < 1.0) {
             return "F";
-        }
-        else if (gp < 2.0) {
+        } else if (gp < 2.0) {
             return "D";
         } else if (gp < 3.0) {
             return "C";
